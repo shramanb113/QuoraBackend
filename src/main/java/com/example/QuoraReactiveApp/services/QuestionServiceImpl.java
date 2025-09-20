@@ -2,8 +2,10 @@ package com.example.QuoraReactiveApp.services;
 
 import com.example.QuoraReactiveApp.dto.QuestionRequestDTO;
 import com.example.QuoraReactiveApp.dto.QuestionResponseDTO;
+import com.example.QuoraReactiveApp.events.ViewCountEvent;
 import com.example.QuoraReactiveApp.mapper.QuestionMapper;
 import com.example.QuoraReactiveApp.models.Question;
+import com.example.QuoraReactiveApp.producers.KafkaEventProducer;
 import com.example.QuoraReactiveApp.repositories.QuestionRepository;
 import com.example.QuoraReactiveApp.utils.CursorUtils;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import java.time.LocalDateTime;
 public class QuestionServiceImpl implements IQuestionService {
 
     private final QuestionRepository questionRepository;
+    private final KafkaEventProducer kafkaEventProducer;
 
 
     @Override
@@ -47,6 +50,11 @@ public class QuestionServiceImpl implements IQuestionService {
             ObjectId objectId = new ObjectId(id); // Validates ID format
             return questionRepository.findById(objectId)
                     .map(QuestionMapper::toQuestionResponseDTO)
+                    .doOnSuccess(response->{
+                        System.out.println("Response fetched successfully " + response);
+                        ViewCountEvent viewCountEvent = new ViewCountEvent(id,"question",LocalDateTime.now());
+                        kafkaEventProducer.publishViewCountEvent(viewCountEvent);
+                    })
                     .switchIfEmpty(Mono.error(new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
                             "Question not found with id: " + id

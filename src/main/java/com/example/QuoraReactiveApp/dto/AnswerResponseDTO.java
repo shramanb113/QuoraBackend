@@ -13,8 +13,12 @@ import java.time.LocalDateTime;
 @Builder
 public class AnswerResponseDTO {
 
-    private String Id;
+    private String id;
+    private String questionId;
+    private String userId;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private int upvotes;
+    private int downvotes;
 }

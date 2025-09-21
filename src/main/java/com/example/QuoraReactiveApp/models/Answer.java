@@ -22,20 +22,22 @@ import java.time.LocalDateTime;
 public class Answer {
 
     @Id
-    private String Id;
+    private String id;
 
-    @NotBlank(message = "Shouldn't be left blank")
-    @Size(min = 10,max = 100 , message = "content must be between 10 and 100 characters")
+    private String questionId;
+    private String userId;
     private String content;
 
-    @Indexed
-    private String questionId;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Builder.Default
+    private int upvotes = 0;
+
+    @Builder.Default
+    private int downvotes = 0;
 
 }
 
